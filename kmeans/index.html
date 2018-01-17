@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>2110151053 Faizal A | Machine Learning Metode K-Nearest Neighbor</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			text-align: center;
+		}
+		th, td {
+			border: 1px solid black;
+			padding: 2.5px;
+		}
+		#plot,
+		#plot-cluster {
+			width: 50%;
+			height: 300px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Machine Learning Metode K-Means</h1>
+	<h2><u>Data Training</u></h2>
+	<form id="formTraining" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Umur</th>
+					<th>Kegemukan</th>
+				</tr>
+			</thead>
+			<tbody id="tbodyTraining">
+				<tr>
+					<td>
+						1
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="umur">
+							<option value="1">Bayi</option>
+							<option value="2">Anak</option>
+							<option value="3">Muda</option>
+							<option value="4">Paruh Baya</option>
+							<option value="5">Dewasa</option>
+							<option value="6">Tua</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="kegemukan">
+							<option value="1">Terlalu Kurus</option>
+							<option value="2">Sangat Kurus</option>
+							<option value="3">Kurus</option>
+							<option value="4">Gemuk</option>
+							<option value="5">Sangat Gemuk</option>
+							<option value="6">Terlalu Gemuk</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td><button type="button" id="add-btn">+1 row</button></td>
+					<td colspan="3">&nbsp;</td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+
+	<h2><u>Input K</u></h2>
+	<form id="formTesting" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>K</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><input type="number" name="k" id="k"></td>
+					<td><button type="submit">Cluster</button></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+
+	<h2><u>Grafik generate centroid</u></h2>
+	<div id="plot">
+		
+	</div>
+	<h3>Centroid</h3>
+	<ul id="centroid-ul"></ul>
+
+	<h2><u>Hasil Cluster</u></h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Umur</th>
+				<th>Kegemukan</th>
+				<th>Cluster</th>
+			</tr>
+		</thead>
+		<tbody id="tbodyHasil">
+		</tbody>
+	</table>
+
+	<h2><u>Grafik setelah cluster</u></h2>
+	<div id="plot-cluster">
+		
+	</div>
+
+	<script src="jquery-3.2.1.min.js"></script>
+	<script src="flot/jquery.flot.min.js"></script>
+	<script>
+
+		var dataCount = 1;
+		$('#add-btn').click(function(event) {
+			$('#tbodyTraining').append(
+				'<tr>'+
+					'<td>'+
+						(dataCount+1)+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="umur">'+
+							'<option value="1">Bayi</option>'+
+							'<option value="2">Anak</option>'+
+							'<option value="3">Muda</option>'+
+							'<option value="4">Paruh Baya</option>'+
+							'<option value="5">Dewasa</option>'+
+							'<option value="6">Tua</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="kegemukan">'+
+							'<option value="1">Terlalu Kurus</option>'+
+							'<option value="2">Sangat Kurus</option>'+
+							'<option value="3">Kurus</option>'+
+							'<option value="4">Gemuk</option>'+
+							'<option value="5">Sangat Gemuk</option>'+
+							'<option value="6">Terlalu Gemuk</option>'+
+						'</select>'+
+					'</td>'+
+				'</tr>'
+			);
+			dataCount++;
+		});
+
+		$('#formTesting').submit(function(event) {
+			event.preventDefault();
+			$('#tbodyTerkecil').html('');
+			// var data = $(this).serializeArray().reduce(function(obj, item) {
+			//     obj[item.name] = item.value;
+			//     return obj;
+			// }, {});
+			
+			var k = parseInt($('#k').val());
+
+			// model training
+			var training = [];
+			var count = -1;
+			var attrCount = 0;
+			$.each($('#formTraining select[name=data]'), function(index, val) {
+				if($(val).data('count') != count) {
+					attrCount = 0;
+					count = $(val).data('count');
+					formData = new Object();
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					formData[attrCount] = dataValue;
+				}
+				else {
+					attrCount++;
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					formData[attrCount] = dataValue;
+				}
+
+				training[$(val).data('count')] = formData;
+
+			});
+
+			var dataTraining = [];
+			$.each(training, function(index, val) {
+				dataTraining.push([Object.values(val[0])[0], Object.values(val[1])[0]]);
+			});
+
+			$('#centroid-ul').html('');
+			var dataCentroid = [];
+			for(var i = 0; i < k; i++) {
+				var x = getRandomInt(1, 6);
+				var y = getRandomInt(1, 6);
+				$('#centroid-ul').append('<li>('+x+', '+y+')</li>');
+				dataCentroid.push([x, y]);
+			}
+
+			plotTraining(dataTraining, dataCentroid);
+
+			var dataCluster = [];
+			var x = [];
+			var y = [];
+			var j = [];
+			$.each(training, function(index, val) {
+				// cari jarak ke tiap centroid
+				var jarak = [];
+				$.each(dataCentroid, function(i, v) {
+					jarak[i] = Math.sqrt(Math.pow(Object.values(val[0])[0] - v[0], 2) + Math.pow(Object.values(val[1])[0] - v[1], 2));
+				});
+
+				// cari jarak centroid terdekat
+				var minIndex = 0;
+				var value = jarak[0];
+				for (var i = 1; i < jarak.length; i++) {
+				  if (jarak[i] < value) {
+				    value = jarak[i];
+				    minIndex = i;
+				  }
+				}
+
+				training[index]['centroid'] = minIndex;
+				training[index]['jarak'] = value;
+
+				if(typeof x[minIndex] == 'undefined') {
+					x[minIndex] = 0;
+				}
+				if(typeof y[minIndex] == 'undefined') {
+					y[minIndex] = 0;
+				}
+				if(typeof j[minIndex] == 'undefined') {
+					j[minIndex] = 1;
+				}
+
+				// cari rata2 untuk centroid baru
+				x[minIndex] += parseInt(Object.values(val[0])[0]);
+				y[minIndex] += parseInt(Object.values(val[1])[0]);
+				j[minIndex]++;
+				dataCentroid[minIndex][0] = (x[minIndex] + dataCentroid[minIndex][0])/j[minIndex];
+				dataCentroid[minIndex][1] = (y[minIndex] + dataCentroid[minIndex][1])/j[minIndex];
+
+				if(typeof dataCluster[minIndex] == 'undefined') {
+					dataCluster[minIndex] = [];
+				}
+				dataCluster[minIndex].push([parseInt(Object.values(val[0])[0]), parseInt(Object.values(val[1])[0]), 'data'])
+
+			});
+
+			$.each(dataCluster, function(index, val) {
+				dataCluster[index].push([dataCentroid[index][0], dataCentroid[index][1], 'centroid'])
+			});
+
+			var umur = ['Bayi', 'Anak', 'Muda', 'Paruh Baya', 'Dewasa', 'Tua'];
+			var gemuk = ['Terlalu Kurus', 'Sangat Kurus', 'Kurus', 'Gemuk', 'Sangat Gemuk', 'Terlalu Gemuk'];
+
+			$('#tbodyHasil').html('');
+			$.each(dataCluster, function(index, val) {
+				$.each(val, function(i, v) {
+					if(v[2] != 'centroid') {
+						$('#tbodyHasil').append('<tr><td>'+umur[v[0]-1]+'</td><td>'+gemuk[v[1]-1]+'</td><td>'+index+'</td></tr>');
+					}
+				});
+			});
+			
+			plotCluster(dataCluster);
+		});
+
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+		}
+
+		function plotCluster(data) {
+			var dataPlot = [];
+			var dataCentroid = [];
+			$.each(data, function(index, value) {
+				var dataCluster = [];
+				$.each(value, function(i, val) {
+					if(val[2] == 'data') {
+						dataCluster.push([val[0], val[1]]);
+					}
+					else {
+						dataCentroid.push([val[0], val[1]]);
+					}
+				});
+				dataPlot.push({ data: dataCluster, label: "Cluster-"+index});
+			});
+			dataPlot.push({ data: dataCentroid, label: "Centroid"});
+
+			var plot = $.plot("#plot-cluster", dataPlot, {
+				series: {
+					lines: {
+						show: false
+					},
+					points: {
+						show: true
+					}
+				},
+				grid: {
+					hoverable: true,
+					clickable: true
+				},
+				xaxis: {
+					// ticks: 10
+					ticks : [
+						[1, "Bayi"],
+						[2, "Anak"],
+						[3, "Muda"],
+						[4, "Paruh Baya"],
+						[5, "Dewasa"],
+						[6, "Tua"],
+					],
+					autoscaleMargin: 1
+				},
+				yaxis: {
+					// ticks: 10
+					ticks : [
+						[1, "Terlalu Kurus"],
+						[2, "Sangat Kurus"],
+						[3, "Kurus"],
+						[4, "Gemuk"],
+						[5, "Sangat Gemuk"],
+						[6, "Terlalu Gemuk"],
+					],
+					autoscaleMargin: 1
+				}
+			});
+			$("<div id='tooltip'></div>").css({
+				position: "absolute",
+				display: "none",
+				border: "1px solid #fdd",
+				padding: "2px",
+				"background-color": "#fee",
+				opacity: 0.80
+			}).appendTo("body");
+			$("#plot-cluster").bind("plothover", function (event, pos, item) {
+				if (item) {
+					var x = item.datapoint[0].toFixed(2),
+						y = item.datapoint[1].toFixed(2);
+
+					$("#tooltip").html("("+x+", "+y+")")
+						.css({top: item.pageY+5, left: item.pageX+5})
+						.fadeIn(200);
+				} else {
+					$("#tooltip").hide();
+				}
+			});
+		}
+
+		function plotTraining(training, centroid) {
+			var plot = $.plot("#plot", [
+				{ data: training, label: "Data"},
+				{ data: centroid, label: "Centroid"},
+			], {
+				series: {
+					lines: {
+						show: false
+					},
+					points: {
+						show: true
+					}
+				},
+				grid: {
+					hoverable: true,
+					clickable: true
+				},
+				xaxis: {
+					// ticks: 10
+					ticks : [
+						[1, "Bayi"],
+						[2, "Anak"],
+						[3, "Muda"],
+						[4, "Paruh Baya"],
+						[5, "Dewasa"],
+						[6, "Tua"],
+					],
+					autoscaleMargin: 1
+				},
+				yaxis: {
+					// ticks: 10
+					ticks : [
+						[1, "Terlalu Kurus"],
+						[2, "Sangat Kurus"],
+						[3, "Kurus"],
+						[4, "Gemuk"],
+						[5, "Sangat Gemuk"],
+						[6, "Terlalu Gemuk"],
+					],
+					autoscaleMargin: 1
+				}
+			});
+			$("<div id='tooltip'></div>").css({
+				position: "absolute",
+				display: "none",
+				border: "1px solid #fdd",
+				padding: "2px",
+				"background-color": "#fee",
+				opacity: 0.80
+			}).appendTo("body");
+			$("#plot").bind("plothover", function (event, pos, item) {
+				if (item) {
+					var x = item.datapoint[0].toFixed(2),
+						y = item.datapoint[1].toFixed(2);
+
+					$("#tooltip").html("("+x+", "+y+")")
+						.css({top: item.pageY+5, left: item.pageX+5})
+						.fadeIn(200);
+				} else {
+					$("#tooltip").hide();
+				}
+			});
+		}
+	</script>
+</body>
+</html>

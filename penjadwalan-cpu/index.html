@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Penjadwalan CPU</title>
+	<link rel="stylesheet" href="css/materialize.css">
+	<style type="text/css" media="screen">
+		.gantt-chart-atas {
+			width: 80%;
+			border: solid 1px lightgray;
+			border-right: 0px;
+			height: 50px;
+		}
+
+		.gantt-chart-bawah {
+			border-left: solid 1px lightgray;
+			height: 30px;
+		}
+
+		.gantt-proses-atas {
+			width: 100%;
+			height: 100%;
+		}
+
+		.gantt-proses-atas .gantt-proses:nth-child(odd) {
+			background-color: #0cf;
+		}
+
+		.gantt-proses-atas .gantt-proses:nth-child(even) {
+			background-color: #06f;
+		}
+
+		.idle {
+			background-color: lightgray !important;
+		}
+
+		.gantt-proses-atas .gantt-proses {
+			line-height: 50px;
+			text-align: center;
+			color: white;
+		}
+
+		.gantt-proses-bawah .gantt-proses, #proses-akhir {
+			line-height: 30px;
+			padding-left: 2px;
+		}
+
+		.gantt-proses-bawah {
+			display: inline-block;
+			float: left;
+			height: 100%;
+		}
+
+		.gantt-chart-bawah:nth-child() {
+			display: inline-block;
+		}
+
+		.gantt-proses {
+			border-right: solid 1px lightgray;
+			display: inline-block;
+			height: 100%;
+			float: left;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Penjadwalan CPU</h1>
+		<form id="cpu">
+			<div class="row">
+				<div class="input-field col s12 m5">
+					<select name="metode" id="metode">
+						<option value="" disabled selected>Pilih...</option>
+						<option value="FCFS">FCFS</option>
+						<option value="SJF-Non Preemptive">SJF-Non Preemptive</option>
+						<option value="Priority">Priority</option>
+						<option value="Round Robin">Round Robin</option>
+						<option value="SJF-Preemptive">SJF-Preemptive</option>
+					</select>
+					<label>Pilih Algoritma Penjadwalan</label>
+				</div>
+				<div class="input-field col s12 m5">
+					<input name="jumproses" placeholder="Banyak Proses..." id="jumproses" type="number" class="validate" min="2" max="10">
+					<label for="jumproses">Masukkan Banyaknya Proses</label>
+				</div>
+				<button class="waves-effect waves-light btn col m1" id="buatproses">Buat</button>
+			</div>
+			
+			<div class="row" id="input-proses">
+				<div class="row">
+					<br><hr>
+					<h4 id="judul-metode"></h4>
+				</div>
+
+				<div class="row" id="input-data">
+					
+				</div>
+
+				<div class="row">
+					<button type="submit" class="waves-effect waves-light btn" id="buatjadwal">Lakukan Penjadwalan</button>
+				</div>
+			</div>
+		</form>
+
+		<div class="row" id="hasil">
+			<hr>
+			<h4>Hasil Penjadwalan</h4>
+			<h5>Gantt Chart</h5>
+			<div class="gantt-chart-atas">
+				<div class="gantt-proses-atas">
+					<!-- <div class="gantt-proses" style="width: 20%;">P1</div> -->
+				</div>
+			</div>
+			<div class="gantt-chart-bawah">
+				<div id="timing" class="gantt-proses-bawah" style="width: 80%;">
+					<!-- <div class="gantt-proses" style="width: 20%;">0</div> -->
+				</div>
+				<div id="proses-akhir" class="gantt-proses-bawah" style="width: 20%;"></div>
+			</div>
+			<br>
+				<ul>
+					<li>NP = No-Process (IDLE)</li>
+					<li>P = Process</li>
+				</ul>
+			<br>
+			<h5>Waiting Time Tiap Proses</h5>
+			<table class="highlight centered">
+				<thead>
+					<tr>
+						<th>Proses</th>
+						<th id="at">Arival Time</th>
+						<th>Burst Time</th>
+						<th>Waiting Time</th>
+						<th>Turned Around Time</th>
+					</tr>
+				</thead>
+				<tbody id="analisis">
+					
+				</tbody>
+			</table> 
+			<h5>Average Waiting Time</h5>
+			<h5 id="awt">x/x = xxx</h5>
+			<h5>Average Turned Around Time</h5>
+			<h5 id="atat">x/x = xxx</h5>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/materialize.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('select').material_select();
+			$('#input-proses').hide();
+			$('#hasil').hide();
+		});
+
+		// Membuat Form Input Proses
+		$('#buatproses').click(function(event) {
+			event.preventDefault();
+			var jumproses = parseInt($('#jumproses').val());
+			var metode = $('#metode').val();
+
+			$('#input-proses').show('slow');
+			$('#judul-metode').html(metode);
+			$('#input-data').html('');
+			$('#at').html(metode == 'Priority'?'Prioritas':'Arival Time');
+
+			for (var i = 1; i <= jumproses; i++) {
+				$('#input-data').append(
+					'<div class="row">'+
+						'<h5>Proses '+i+'</h5>'+
+						'<input type="hidden" name="proses['+i+'][nama]" value="'+i+'">'+
+						'<div class="input-field col s12 m6">'+
+							'<input name="proses['+i+']['+(metode == 'Priority'?'priority':'arvtime')+']" id="'+(metode == 'Priority'?'priority':'arvtime')+'-'+i+'" type="number" class="validate">'+
+							'<label for="'+(metode == 'Priority'?'priority':'arvtime')+'-'+i+'">Masukkan '+(metode == 'Priority'?'Prioritas':'Arival Time')+' Proses '+i+'</label>'+
+						'</div>'+
+						'<div class="input-field col s12 m6">'+
+							'<input name="proses['+i+'][bursttime]" id="bursttime-'+i+'" type="number" class="validate" min="1">'+
+							'<label for="bursttime-'+i+'">Masukkan Burst Time Proses '+i+'</label>'+
+						'</div>'+
+					'</div>'
+				);
+			}
+
+			// untuk algoritma Round Robin ditambah input quantum time
+			if(metode == 'Round Robin') $('#input-data').append(
+				'<div class="row">'+
+					'<h5>Quantum Time</h5>'+
+					'<div class="input-field col s12 m6">'+
+						'<input name="quantum" id="quantum" type="number" class="validate">'+
+						'<label for="quantum">Masukkan Quantum Time</label>'+
+					'</div>'+
+				'</div>'
+			);
+		});
+
+		$('#cpu').submit(function(event) {
+			event.preventDefault();
+			var dataproses = $('#cpu').serialize(); // data form
+			var metode = $('#metode').val();
+			
+
+			// Pengiriman data ke server (php)
+			$.ajax({
+				url: 'schedule.php',
+				type: 'POST',
+				dataType: 'json',
+				data: dataproses,
+				success: function(data){ // Menangkap data json dari response server
+					$('.gantt-proses-atas').html('');
+					$('.gantt-proses-bawah').html('');
+					$('#analisis').html('');
+
+					// Pembuatan gantt chart
+					$.each(data.gantt, function(index, val) {
+						$('.gantt-proses-atas').append(
+							'<div class="gantt-proses '+val.proses+' '+val.idle+'" style="width : '+val.jml/data.selesai*100+'%;">'+val.proses+'</div>'
+						);
+
+						$('#timing').append(
+							'<div class="gantt-proses '+val.proses+'" style="width : '+val.jml/data.selesai*100+'%;">'+val.start+'</div>'
+						);
+					});
+					$('#proses-akhir').html(data.selesai);
+
+					// Rincian hasil penjadwalan cpu
+					$.each(data.analisis, function(index, val) {
+						$('#analisis').append(
+						 	'<tr>'+
+								'<td>'+val.proses+'</td>'+
+								'<td>'+(metode == 'Priority'?val.pri:val.at)+'</td>'+
+								'<td>'+val.bt+'</td>'+
+								'<td>'+val.wt+'</td>'+
+								'<td>'+val.tat+'</td>'+
+							'</tr>'
+						);
+					});
+
+					var jumproses = parseInt($('#jumproses').val());
+					$('#awt').html(data.totwt+' / '+jumproses+' = '+data.totwt/jumproses);
+					$('#atat').html(data.tottat+' / '+jumproses+' = '+data.tottat/jumproses);
+
+					$('#hasil').show('slow');
+				}
+			});
+			
+		});
+	</script>
+</body>
+</html>

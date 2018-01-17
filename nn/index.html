@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>2110151053 Faizal A | Machine Learning Metode Neural Network</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			text-align: center;
+		}
+		th, td {
+			border: 1px solid black;
+			padding: 2.5px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Machine Learning Metode Neural Network</h1>
+	<h2><u>Data Training</u></h2>
+	<form id="formTraining" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Umur</th>
+					<th>Kegemukan</th>
+					<th>Hipertensi</th>
+				</tr>
+			</thead>
+			<tbody id="tbodyTraining">
+				<tr>
+					<td>
+						1
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="umur">
+							<option value="0">Muda</option>
+							<option value="1">Paruh Baya</option>
+							<option value="2">Tua</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="kegemukan">
+							<option value="0">Gemuk</option>
+							<option value="1">Sangat Gemuk</option>
+							<option value="2">Terlalu Gemuk</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="hipertensi">
+							<option value="0">Ya</option>
+							<option value="1">Tidak</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td><button type="button" id="add-btn">+1 row</button></td>
+					<td colspan="3">&nbsp;</td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+
+	<h2><u>Data Testing</u></h2>
+	<form id="formTesting" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>Umur</th>
+					<th>Kegemukan</th>
+					<th>Hasil</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<select name="umur">
+							<option value="0">Muda</option>
+							<option value="1">Paruh Baya</option>
+							<option value="2">Tua</option>
+						</select>
+					</td>
+					<td>
+						<select name="kegemukan">
+							<option value="0">Gemuk</option>
+							<option value="1">Sangat Gemuk</option>
+							<option value="2">Terlalu Gemuk</option>
+						</select>
+					</td>
+					<td id="hasil">?</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="3"><button type="submit">Cari Hasil</button></td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+
+	<script src="jquery-3.2.1.min.js"></script>
+	<script>
+
+		var dataCount = 1;
+		$('#add-btn').click(function(event) {
+			$('#tbodyTraining').append(
+				'<tr>'+
+					'<td>'+
+						(dataCount+1)+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="umur">'+
+							'<option value="0">Muda</option>'+
+							'<option value="1">Paruh Baya</option>'+
+							'<option value="2">Tua</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="kegemukan">'+
+							'<option value="0">Gemuk</option>'+
+							'<option value="1">Sangat Gemuk</option>'+
+							'<option value="2">Terlalu Gemuk</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="hipertensi">'+
+							'<option value="0">Ya</option>'+
+							'<option value="1">Tidak</option>'+
+						'</select>'+
+					'</td>'+
+				'</tr>'
+			);
+			dataCount++;
+		});
+
+		$('#formTesting').submit(function(event) {
+			event.preventDefault();
+			$('#tbodyTerkecil').html('');
+			// var data = $(this).serializeArray().reduce(function(obj, item) {
+			//     obj[item.name] = item.value;
+			//     return obj;
+			// }, {});
+			
+			var data = $(this).serializeArray();
+			cariHasil(data);
+		});
+
+		function cariHasil(data) {			
+			var training = [];
+			var count = -1;
+			var attrCount = 0;
+
+			// model training
+			$.each($('#formTraining select[name=data]'), function(index, val) {
+				if($(val).data('count') != count) {
+					attrCount = 0;
+					count = $(val).data('count');
+					formData = new Object();
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					formData[attrCount] = dataValue;
+				}
+				else {
+					attrCount++;
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					formData[attrCount] = dataValue;
+				}
+
+				training[$(val).data('count')] = formData;
+
+			});
+
+			console.log(training);
+
+			var w = setW(null, null, null);
+
+			var err = 1;
+			var epoch = 1;
+			var max_epoch = 5000;
+			while(err != 0 && epoch <= max_epoch) {
+				console.log('epoch ke-'+epoch++);
+				$.each(training, function(index, val) {
+					console.log('w', w);
+					var sumData = 0;
+					$.each(val, function(indexData, valData) {
+						if(indexData != 2) {
+							var x = parseInt(Object.values(valData)[0]);
+							sumData += x * w[indexData];
+							console.log('data-ke'+index, 'attr-'+indexData, x * w[indexData], sumData);
+						}
+						else {
+							sumData += 1 * w[2];
+							console.log('data-ke'+index, 'attr-'+indexData, 1 * w[2], sumData);
+
+							var output = 0;
+							if(sumData >= 0) {
+								output = 1;
+							}
+							else {
+								output = 0;
+							}
+
+							console.log('output', output);
+
+							err = parseInt(Object.values(valData)[0]) - output;
+							console.log('error', err);
+
+							if(err != 0) {
+								console.log('hitung w baru');
+								w = setW(w, val, err);
+								return false;
+							}
+						}
+					});
+					if(err != 0) {
+						console.log('ulangi ke 0');
+						return false;
+					}
+				});
+			}
+
+			var hipertensi = ['Ya', 'Tidak'];
+			var dataTest = [[data[0].value, data[1].value]];
+
+			var sumData = 0;
+			$.each(dataTest, function(index, val) {
+				sumData += parseInt(val) * w[index];
+			});
+			sumData += 1 * w[2];
+
+			var output = 0;
+			if(sumData >= 0) {
+				output = 1;
+			}
+			else {
+				output = 0;
+			}
+
+			$('#hasil').html(hipertensi[output]);
+		}
+
+		// var objek1 = {
+		// 	attr1 : 10,
+		// 	attr2 : "string",
+		// 	method1 : function(a, b) {
+		// 		return a+b;
+		// 	},
+		// 	method2 : function(a, b) {
+		// 		this.attr1 = a;
+		// 		this.attr2 = b;
+		// 	},
+		// };
+
+		// console.log(objek1);
+
+		function setW(wdata, data, err) {
+			if(wdata == null) {
+				var wdata = [];
+				for(var i = 0; i < 3; i++) {
+					wdata[i] = round(getRandomArbitrary(-1, 1), 2);
+				}
+				return wdata;
+			}
+			else {
+				for(var i = 0; i < 3; i++) {
+					if(i < 2) {
+						wdata[i] = wdata[i] + round(getRandomArbitrary(-1, 1), 2) * parseInt(Object.values(data[i])[0]) * err;
+						console.log('pilihan-'+parseInt(Object.values(data[i])[0]), wdata[i]);
+					}
+					else {
+						wdata[i] = wdata[i] + round(getRandomArbitrary(-1, 1), 2) * 1 * err;
+						console.log('pilihan-'+1, wdata[i]);
+					}
+				}
+				return wdata;
+			}
+		}
+
+		function round(number, precision) {
+		    var factor = Math.pow(10, precision);
+		    var tempNumber = number * factor;
+		    var roundedTempNumber = Math.round(tempNumber);
+		    return roundedTempNumber / factor;
+		}
+
+		function getRandomArbitrary(min, max) {
+			return Math.random() * (max - min) + min;
+		}
+	</script>
+</body>
+</html>

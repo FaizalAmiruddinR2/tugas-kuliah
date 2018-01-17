@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Manajemen Memory</title>
+	<link rel="stylesheet" href="css/materialize.css">
+	<style type="text/css" media="screen">
+		.diagram-atas {
+			border: solid 1px lightgray;
+			height: 100px;
+			padding: 0 !important;
+		}
+
+		.diagram-bawah {
+			border-left: solid 1px lightgray;
+			height: 30px;
+			padding: 0 !important;
+		}
+
+		.blok, .proses, .blok-nama {
+			position: relative;
+			height: 100%;
+			float: left;
+		}
+
+		.blok:nth-child(odd) {
+			background-color: #0cf;
+		}
+
+		.blok:nth-child(even) {
+			background-color: #06f;
+		}
+
+		.proses {
+			background-image: url('pattern.png');
+			background-color: rgba(255, 255, 255, 0.5);
+			color: white;
+			line-height: 100px;
+			text-align: center;
+		}
+
+		.blok-nama {
+			border-right: solid 1px lightgray;
+			text-align: center;
+			line-height: 30px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Manajemen Memory</h1>
+		<div class="row">
+			<div class="input-field col s12 m5">
+				<select name="metode" id="metode">
+					<option value="" disabled selected>Pilih...</option>
+					<option value="First-fit">First-fit</option>
+					<option value="Best-fit">Best-fit</option>
+					<option value="Worst-fit">Worst-fit</option>
+				</select>
+				<label>Pilih Metode</label>
+			</div>
+			<div class="input-field col s12 m5">
+				<input name="jumblok" placeholder="Banyak Blok..." id="jumblok" type="number" class="validate" min="2" max="10">
+				<label for="jumblok">Masukkan Banyaknya Blok Memory</label>
+			</div>
+			<button class="waves-effect waves-light btn col m1" id="buatblok">Buat</button>
+		</div>
+
+	<div class="row" id="input-blok">
+		<div class="row" id="input-data">
+			
+		</div>
+
+		<div class="row">
+			<button class="waves-effect waves-light btn" id="buatdiag">Buat Diagram</button>
+		</div>
+	</div>
+
+	<div class="row" id="hasil">
+		<hr>
+		<h5>Input Ukuran Memori Proses</h5>
+		<div class="row">
+			<div class="input-field col s12 m5">
+				<input name="bsrpros" id="bsrpros" type="number" class="validate" min="2">
+				<label for="bsrpros">Masukkan Besar Memory Proses <span id="proses-ke"></span></label>
+			</div>
+		</div>
+		<div class="row">
+			<button class="waves-effect waves-light btn" id="buatproses">Jalankan Proses</button>
+		</div>
+		<h5>Diagram</h5>
+		<div class="diagram-atas col m12">
+		</div>
+		<div class="diagram-bawah col m12">
+		</div>
+		<br>
+		<table class="highlight centered">
+			<thead>
+				<tr>
+					<th>Blok</th>
+					<th>Ukuran Blok</th>
+					<th>Proses</th>
+					<th>Ukuran Proses</th>
+					<th>Hapus</th>
+					<th>Sisa Ukuran Blok</th>
+				</tr>
+			</thead>
+			<tbody id="tabel-diag">
+				
+			</tbody>
+		</table>
+	</div>
+
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/materialize.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('select').material_select();
+			$('#input-blok').hide();
+			$('#hasil').hide();
+		});
+
+		var blok = [];
+		var total = 0;
+		var proses = [];
+		var proseske = 1; // nama proses
+		var running = 0; // banyaknya proses yang berjalan
+		var metode = '';
+
+		$('#buatblok').click(function(event) {
+			event.preventDefault();
+
+			metode = $('#metode').val();
+
+			$('#input-data').html('');
+			$('#proses-ke').html(proseske);
+
+			// membuat input ukuran blok sebanyak jumlah blok yang diinginkan
+			for (var i = 1; i <= parseInt($('#jumblok').val()); i++) {
+				$('#input-data').append(
+					'<div class="input-field col s6 m3">'+
+						'<input name="blok" id="blok-'+i+'" type="number" class="validate" min="1">'+
+						'<label for="blok-'+i+'">Ukuran Blok '+i+'</label>'+
+					'</div>'
+				);
+			}
+			$('#input-blok').show('slow');
+		});
+
+		// membuat animasi diagram
+		$('#buatdiag').click(function(event) {
+			event.preventDefault();
+
+			blok = [];
+			proses = [];
+			total = 0;
+			running = 0;
+			$('.diagram-atas').html('');
+			$('.diagram-bawah').html('');
+			$('#tabel-diag').html('');
+
+			//menampung hasil input ukuran blok
+			$('input[name="blok"]').each(function() {
+				blok.push(parseInt($(this).val()));
+				total += parseInt($(this).val());
+			});
+
+			// membuat diagram
+			$.each(blok, function(index, val) {
+				$('.diagram-atas').append(
+					'<div class="blok" style="width: '+(val/total*100)+'%;">'+
+						'<div class="proses" style="width: 0%;" id="prosblok-'+index+'"></div>'+
+					'</div>'
+				);
+
+				$('.diagram-bawah').append(
+					'<div class="blok-nama" style="width: '+(val/total*100)+'%;">Blok '+(index+1)+'</div>'
+				);
+
+				// tabel rincian tiap blok
+				$('#tabel-diag').append(
+					'<tr>'+
+						'<td>Blok '+(index+1)+'</td>'+
+						'<td>'+val+' K</td>'+
+						'<td id="nmpros-'+index+'">-</td>'+
+						'<td><span id="ukpros-'+index+'">0</span> K</td>'+
+						'<td id="hpspros-'+index+'">-</td>'+
+						'<td><span id="sisa-'+index+'">'+val+'</span> K</td>'+
+					'</tr>'
+				);
+			});
+
+			$('#hasil').show('slow');
+		});
+
+		// pengalokasian memory
+		$('#buatproses').click(function(event) {
+			event.preventDefault();
+			var bsrpros = parseInt($('#bsrpros').val()); // Besar ukuran proses
+			var fitIndex = -1; // index array proses yang sesuai
+			var best = -1; // acuan untuk best-fit dan worst-fit
+			var selisih = 0;
+
+			if(running != blok.length) { // jika proses yang berjalan != banyak blok
+				switch (metode) {
+					case 'First-fit':
+						for (var i = 0; i <= blok.length - 1; i++) {
+							if(proses[i] == undefined) {
+								// jika besar proses kurang dari ukuran blok
+								// dan jika tidak ada proses yang menempati blok
+								if(bsrpros <= blok[i]) {
+									fitIndex = i;
+									break;
+								}
+							}
+						}
+						break;
+
+					case 'Best-fit':
+						for (var i = 0; i <= blok.length - 1; i++) {
+							if(proses[i] == undefined) {
+								selisih = blok[i]-bsrpros;
+								// memastikan nilai best >= 0
+								console.log(best+' < '+selisih);
+								if(best == -1 && selisih >= 0) {
+									best = selisih;
+									selisih = 0;
+									fitIndex = i;
+								}
+								// selisih < best dan tidak ada proses yang menempati blok
+								else {
+									if(best >= 0 && selisih >= 0 && selisih < best) {
+										best = selisih;
+										fitIndex = i;
+									}
+								}
+								console.log('fit '+fitIndex);
+							}
+						}
+						break;
+
+					case 'Worst-fit':
+						for (var i = 0; i <= blok.length - 1; i++) {
+							if(proses[i] == undefined) {
+								selisih = blok[i]-bsrpros;
+								// jika selisih > best dan tidak ada proses yang menempati blok
+								if(selisih > best) {
+									best = selisih;
+									fitIndex = i;
+								}
+							}
+						}
+						break;
+
+					default:
+						alert('Tidak ada metode yang dipilih !');
+						break;
+				}
+
+				if(fitIndex > -1) { // jika ada blok yang bisa ditempati
+					proses[fitIndex] = {nama: proseske++, ukuran: bsrpros};
+
+					$.each(proses, function(index, val) {
+						if(val != undefined) {
+							$('#prosblok-'+index).animate({
+								width: (val.ukuran/blok[index]*100)+'%'},
+								'slow'); // animasi blok yang ditempati proses
+							$('#nmpros-'+index).html(val.nama);
+							$('#ukpros-'+index).html(val.ukuran);
+							$('#hpspros-'+index).html('<button class="hapus waves-effect waves-light btn" onclick="hapus('+index+')">Hapus</button>');
+							$('#sisa-'+index).html(blok[index]-val.ukuran);
+						}
+					});
+					++running; // proses yang berjalan bertambah 1
+				}
+				else alert('Ukuran proses terlalu besar !'); // jika ukuran blok kurang besar untuk ditempati proses
+			}
+			else alert('Semua blok memory terpakai, hapus beberapa !'); // jika semua blok terpakai
+		});
+
+		// menghapus proses yang berjalan
+		function hapus(elemen) {
+			delete proses[elemen];
+
+			$('#prosblok-'+elemen).animate({
+				width: '0%'},
+				'slow'); // animasi blok yang prosesnya dihapus
+			$('#nmpros-'+elemen).html('-');
+			$('#ukpros-'+elemen).html(0);
+			$('#hpspros-'+elemen).html('-');
+			$('#sisa-'+elemen).html(blok[elemen]);
+			--running; // proses yang berjalan berkurang 1
+		}
+	</script>
+</body>
+</html>

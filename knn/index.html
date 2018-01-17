@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>2110151053 Faizal A | Machine Learning Metode K-Nearest Neighbor</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			text-align: center;
+		}
+		th, td {
+			border: 1px solid black;
+			padding: 2.5px;
+		}
+		#plot {
+			width: 50%;
+			height: 300px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Machine Learning Metode K-Nearest Neighbor</h1>
+	<h2><u>Data Training</u></h2>
+	<form id="formTraining" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Umur</th>
+					<th>Kegemukan</th>
+					<th>Hipertensi</th>
+				</tr>
+			</thead>
+			<tbody id="tbodyTraining">
+				<tr>
+					<td>
+						1
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="umur">
+							<option value="1">Muda</option>
+							<option value="2">Paruh Baya</option>
+							<option value="3">Tua</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="kegemukan">
+							<option value="1">Gemuk</option>
+							<option value="2">Sangat Gemuk</option>
+							<option value="3">Terlalu Gemuk</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="hipertensi">
+							<option value="1">Ya</option>
+							<option value="2">Tidak</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td><button type="button" id="add-btn">+1 row</button></td>
+					<td colspan="3">&nbsp;</td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+
+	<h2><u>Data Testing</u></h2>
+	<form id="formTesting" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>Umur</th>
+					<th>Kegemukan</th>
+					<th>K</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<select name="umur">
+							<option value="1">Muda</option>
+							<option value="2">Paruh Baya</option>
+							<option value="3">Tua</option>
+						</select>
+					</td>
+					<td>
+						<select name="kegemukan">
+							<option value="1">Gemuk</option>
+							<option value="2">Sangat Gemuk</option>
+							<option value="3">Terlalu Gemuk</option>
+						</select>
+					</td>
+					<td><input type="number" name="k" id="k"></td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="3"><button type="submit">Cari Hasil</button></td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+
+	<h2><u>Grafik</u></h2>
+	<div id="plot">
+		
+	</div>
+
+	<h2><u>Labeled Data Jarak Terkecil</u></h2>
+	<table>
+		<thead>
+			<tr>
+				<th>No.</th>
+				<th>Umur</th>
+				<th>Kegemukan</th>
+				<th>Hipertensi</th>
+				<th>Euclidian Distance</th>
+			</tr>
+		</thead>
+		<tbody id="tbodyTerkecil">
+			
+		</tbody>
+	</table>
+
+	<h2><u>Hasil</u></h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Umur</th>
+				<th>Kegemukan</th>
+				<th>Hipertensi</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td id="hasilUmur">?</td>
+				<td id="hasilGemuk">?</td>
+				<td id="hasilHipertensi">?</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<script src="jquery-3.2.1.min.js"></script>
+	<script src="flot/jquery.flot.min.js"></script>
+	<script>
+
+		var dataCount = 1;
+		$('#add-btn').click(function(event) {
+			$('#tbodyTraining').append(
+				'<tr>'+
+					'<td>'+
+						(dataCount+1)+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="umur">'+
+							'<option value="1">Muda</option>'+
+							'<option value="2">Paruh Baya</option>'+
+							'<option value="3">Tua</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="kegemukan">'+
+							'<option value="1">Gemuk</option>'+
+							'<option value="2">Sangat Gemuk</option>'+
+							'<option value="3">Terlalu Gemuk</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="hipertensi">'+
+							'<option value="1">Ya</option>'+
+							'<option value="2">Tidak</option>'+
+						'</select>'+
+					'</td>'+
+				'</tr>'
+			);
+			dataCount++;
+		});
+
+		$('#formTesting').submit(function(event) {
+			event.preventDefault();
+			$('#tbodyTerkecil').html('');
+			// var data = $(this).serializeArray().reduce(function(obj, item) {
+			//     obj[item.name] = item.value;
+			//     return obj;
+			// }, {});
+			
+			var data = $(this).serializeArray();
+			cariHasil(data);
+		});
+
+		function cariHasil(data) {			
+			var training = [];
+			var count = -1;
+			var attrCount = 0;
+
+			// model training
+			$.each($('#formTraining select[name=data]'), function(index, val) {
+				if($(val).data('count') != count) {
+					attrCount = 0;
+					count = $(val).data('count');
+					formData = new Object();
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					formData[attrCount] = dataValue;
+				}
+				else {
+					attrCount++;
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					formData[attrCount] = dataValue;
+				}
+
+				training[$(val).data('count')] = formData;
+
+			});
+
+			// perhitungan euclidian distance
+			$.each(training, function(index, val) {
+				var euclidianDistance = 0;
+				$.each(val, function(i, train) {
+					if(i < data.length-1) {
+						euclidianDistance += Math.pow(Object.values(train)[0] - data[i].value, 2);
+					}
+				});
+				training[index]['euclidianDistance'] = Math.sqrt(euclidianDistance);
+			});
+
+			// sorting hasil perhitungan
+			training.sort(function(a, b) { 
+			    return a.euclidianDistance - b.euclidianDistance;
+			});
+
+			var umur = ['Muda', 'Paruh Baya', 'Tua'];
+			var gemuk = ['Gemuk', 'Sangat Gemuk', 'Terlalu Gemuk'];
+			var hipertensi = ['Ya', 'Tidak'];
+
+			var i = 0;
+			var ya = 0;
+			var tidak = 0;
+			var dataTest = [[data[0].value, data[1].value]];
+			var dataYes = [];
+			var dataNo = [];
+			$.each(training, function(index, val) {
+				$('#tbodyTerkecil').append(
+					'<tr style="background: '+(i < $('#k').val() ? '#aaa' : '#fff')+'">'+
+						'<td>'+
+							(i+1)+
+						'</td>'+
+						'<td>'+
+							umur[Object.values(val[0])[0] - 1]+
+						'</td>'+
+						'<td>'+
+							gemuk[Object.values(val[1])[0] - 1]+
+						'</td>'+
+						'<td>'+
+							hipertensi[Object.values(val[2])[0] - 1]+
+						'</td>'+
+						'<td>'+
+							val.euclidianDistance+
+						'</td>'+
+					'</tr>'
+				);
+
+				if(Object.values(val[2])[0] == 1) {
+					dataYes.push([Object.values(val[0])[0], Object.values(val[1])[0]]);
+				}
+				else {
+					dataNo.push([Object.values(val[0])[0], Object.values(val[1])[0]]);
+				}
+
+
+				if(i < $('#k').val()) {
+					if(Object.values(val[2])[0] == 1) {
+						ya++;
+					}
+					else {
+						tidak++;
+					}
+				}
+
+				i++;
+			});
+
+			plot(dataTest, dataYes, dataNo);
+
+			$('#hasilUmur').html(umur[data[0].value - 1]);
+			$('#hasilGemuk').html(gemuk[data[1].value - 1]);
+			if(ya > tidak) {
+				$('#hasilHipertensi').html('Ya');
+			}
+			else if(tidak > ya) {
+				$('#hasilHipertensi').html('Tidak');				
+			}
+			else {
+				$('#hasilHipertensi').html('Bisa Jadi');
+			}
+		}
+
+		function plot(dataTest, dataYes, dataNo) {
+			var plot = $.plot("#plot", [
+				{ data: dataTest, label: "Testing"},
+				{ data: dataYes, label: "Ya"},
+				{ data: dataNo, label: "Tidak"}
+			], {
+				series: {
+					lines: {
+						show: false
+					},
+					points: {
+						show: true
+					}
+				},
+				grid: {
+					hoverable: true,
+					clickable: true
+				},
+				xaxis: {
+					// ticks: 10
+					ticks : [
+						[1, "Muda"],
+						[2, "Paruh Baya"],
+						[3, "Tua"],
+					],
+					autoscaleMargin: 1
+				},
+				yaxis: {
+					// ticks: 10
+					ticks : [
+						[1, "Gemuk"],
+						[2, "Sangat Gemuk"],
+						[3, "Terlalu Gemuk"],
+					],
+					autoscaleMargin: 1
+				}
+			});
+			$("<div id='tooltip'></div>").css({
+				position: "absolute",
+				display: "none",
+				border: "1px solid #fdd",
+				padding: "2px",
+				"background-color": "#fee",
+				opacity: 0.80
+			}).appendTo("body");
+			$("#plot").bind("plothover", function (event, pos, item) {
+				if (item) {
+					var x = item.datapoint[0].toFixed(2),
+						y = item.datapoint[1].toFixed(2);
+
+					$("#tooltip").html("("+x+", "+y+")")
+						.css({top: item.pageY+5, left: item.pageX+5})
+						.fadeIn(200);
+				} else {
+					$("#tooltip").hide();
+				}
+			});
+		}
+	</script>
+</body>
+</html>

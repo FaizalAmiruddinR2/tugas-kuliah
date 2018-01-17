@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>NyambEl</title>
+	<link rel="icon" href="img/ikon.png">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="css/materialize.min.css">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="judul"></div>
+	<section class="col s12 m12 l12" id="map-container">
+		<table id="map">
+			<tr>
+				<td>&nbsp;</td>
+				<td><div class="tooltip" id="tooltip-pabrik"><div class="tooltip-balon">Lowongan Kerja di Pabrik</div><div class="panah"></div></div></td>
+				<td>&nbsp;</td>
+				<td><div class="tooltip" id="tooltip-cafe"><div class="tooltip-balon">Lowongan Kerja di Usaha Kuliner</div><div class="panah"></div></div></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td><div class="tooltip" id="tooltip-kantor"><div class="tooltip-balon">Lowongan Kerja di Kantor</div><div class="panah"></div></div></td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td><a class="bangunan" href="#" title=""><button class="tombol-bangunan" id="tombol-pabrik" onclick="sidebar()"></button></a></td>
+				<td><div class="tooltip" id="tooltip-hotel"><div class="tooltip-balon">Lowongan Kerja di Hotel / Penginapan</div><div class="panah"></div></div></td>
+				<td><a class="bangunan" href="#" title=""><button class="tombol-bangunan" id="tombol-cafe" onclick="sidebar()"></button></a></td>
+				<td>&nbsp;</td>
+				<td><div class="tooltip" id="tooltip-toko"><div class="tooltip-balon">Lowongan Kerja di Toko</div><div class="panah"></div></div></td>
+				<td><a class="bangunan" href="#" title=""><button class="tombol-bangunan" id="tombol-kantor" onclick="sidebar()"></button></a></td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td><a class="bangunan" href="#" title=""><button class="tombol-bangunan" id="tombol-hotel" onclick="sidebar()"></button></a></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td><a class="bangunan" href="#" title=""><button class="tombol-bangunan" id="tombol-toko" onclick="sidebar()"></button></a></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+		</table>
+	</section>
+
+	<div id="bantuan">Klik Ikon Bangunan pada Peta !</div>
+	
+	<section class="col s12 m12 l12" id="logo"></section>
+
+	<section class="col s12 m12 l12" id="konten">
+		<h1>About NyambEl</h1>
+		<p>NyambEl atau <em>Nyambut Damel</em> adalah web untuk mencari <strong>lowongan pekerjaan</strong>, sesuai namanya yang asalnya dari bahasa jawa dari kata bekerja. Nyambel ini memiliki motto : <em><strong>Say no to no Job !</strong></em></p>
+
+		<p>Banyak perusahaan yang menyediakan lowongan mereka lewat NyambEl yang sebagian besarnya adalah usaha-usaha kecil menengah <strong>UKM</strong>. Sehingga NyambEl ini sangat cocok untuk para pekerja pemula yang ingin cari-cari pengalaman terutama mahasiswa dan pelajar yang baru saja lulus.</p>
+	</section>
+
+	
+	<footer class="col s12 m12 l12 grey lighten-3" id="footer">
+		Created by: Faizal Amiruddin (2110151053) - 1 D4 IT B<br><br>
+		&copy; Hak cipta milik Allah
+	</footer>
+
+	<div class="sub-cat col s12 m4 l4">
+		<a href="#" title="Kembali"><img src="img/back.png" alt="Kembali" onclick="closesidebar()"></a>
+		<ul id="sub-pabrik">
+			<li><a class="waves-effect waves-light modal-trigger" href="#modal1">Teknisi</a></li>
+			<li><a class="waves-effect waves-light" href="#">Marketing</a></li>
+			<li><a class="waves-effect waves-light" href="#">Buruh</a></li>
+			<li><a class="waves-effect waves-light" href="#">Security</a></li>
+		</ul>
+	</div>
+
+	<div id="modal1" class="modal modal-fixed-footer">
+		<div class="modal-content">
+			<h4>Lowongan Kerja di Pabrik Bagian Teknisi</h4>
+			<div class="row">
+	        <div class="col">
+				<div class="card">
+			    <div class="card-image waves-effect waves-block waves-light">
+			      <img class="activator" src="img/contoh.png">
+			    </div>
+			    <div class="card-content">
+			      <span class="card-title activator grey-text text-darken-4">Card Title<i class="material-icons right">more_vert</i></span>
+			      <p><a class="modal-trigger" href="#modal2">Lamar</a></p>
+			    </div>
+			    <div class="card-reveal">
+			      <span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
+			      <p>Here is some more information about this product that is only revealed once clicked on.</p>
+			    </div>
+			  </div>
+	      </div>
+		</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat ">Close</a>
+		</div>
+	</div>
+
+	<div id="modal2" class="modal modal-fixed-footer">
+		<div class="modal-content">
+			<h4>Lamar Kerja di Pens</h4>
+			<div class="row">
+	        <div class="col">
+				<form action="" method="get" accept-charset="utf-8">
+				<p><label for="nama">Nama : </label><br><input type="text" name="nama" value="" id="nama" maxlength="50"></p>
+				<p><label for="alamat">Alamat : </label><br><textarea name="alamat" id="alamat"></textarea></p>
+				<p><label for="telp">No. Telp : </label><br><input type="tel" name="telp" value="" id="telp" maxlength="50"></p>
+				<p><label for="tpt-lahir">Tempat Lahir : </label><br><input type="text" name="tpt-lahir" value="" id="tpt-lahir" maxlength="50"></p>
+				<p><label for="nama">Tanggal Lahir : </label><br><input type="text" name="nama" value="" id="nama" maxlength="50"></p>
+				<p><label>Jenis Kelamin : </label><br><input type="radio" name="jk" value="" id="cowo"><label for="cowo">Laki-Laki</label> <input type="radio" name="jk" value="" id="cewe"><label for="cewe">Perempuan</label></p>
+				<p><input class="btn" type="submit" name="" value="Lamar"> <input class="btn red darken-4" type="reset" name="" value="Reset"></p>
+			</form>
+	      </div>
+		</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat ">Close</a>
+		</div>
+	</div>
+
+
+
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/materialize.min.js"></script>
+	<script type="text/javascript">
+		function sidebar() {
+			$(".sub-cat").animate({"left": "0px"},2000,"swing");
+		}
+
+		function closesidebar() {
+			$(".sub-cat").animate({"left": "-255px"},2000,"swing");
+		}
+
+		 $(document).ready(function(){
+			$('.modal-trigger').leanModal();
+		});
+	</script>
+</body>
+</html>

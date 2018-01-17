@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>2110151053 Faizal A | Machine Learning Metode Find-S</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			text-align: center;
+		}
+		th, td {
+			border: 1px solid black;
+			padding: 2.5px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Machine Learning Metode Find-S</h1>
+	<h2><u>Data Training</u></h2>
+	<form id="formFSTraining" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Sky</th>
+					<th>Air Temp</th>
+					<th>Humidity</th>
+					<th>Wind</th>
+					<th>Water</th>
+					<th>Forecast</th>
+					<th>Enjoy Sport</th>
+				</tr>
+			</thead>
+			<tbody id="tbodyTraining">
+				<tr>
+					<td>
+						1
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="sky">
+							<option value="rainy">Rainy</option>
+							<option value="sunny">Sunny</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="airTemp">
+							<option value="cold">Cold</option>
+							<option value="warm">Warm</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="humidity">
+							<option value="high">High</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="wind">
+							<option value="strong">Strong</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="water">
+							<option value="warm">Warm</option>
+							<option value="cool">Cool</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="weather">
+							<option value="same">Same</option>
+							<option value="change">Change</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="enjoySport">
+							<option value="yes">Yes</option>
+							<option value="no">No</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td><button type="button" id="add-btn">+1 row</button></td>
+					<td colspan="7"><button type="submit">Cari Hipotesis</button></td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+
+	<h2><u>Proses Hipotesis Positif</u></h2>
+	<table>
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>Sky</th>
+				<th>Air Temp</th>
+				<th>Humidity</th>
+				<th>Wind</th>
+				<th>Water</th>
+				<th>Forecast</th>
+			</tr>
+		</thead>
+		<tbody id="tbodyHipoPos">
+			
+		</tbody>
+	</table>
+
+	<h2><u>Proses Hipotesis Negatif</u></h2>
+	<table>
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>Sky</th>
+				<th>Air Temp</th>
+				<th>Humidity</th>
+				<th>Wind</th>
+				<th>Water</th>
+				<th>Forecast</th>
+			</tr>
+		</thead>
+		<tbody id="tbodyHipoNeg">
+			
+		</tbody>
+	</table>
+
+	<h2><u>Hipotesis Final</u></h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Sky</th>
+				<th>Air Temp</th>
+				<th>Humidity</th>
+				<th>Wind</th>
+				<th>Water</th>
+				<th>Forecast</th>
+				<th>Enjoy Sport</th>
+			</tr>
+		</thead>
+		<tbody id="tbodyHipoFinal">
+			
+		</tbody>
+	</table>
+
+	<h2><u>Data Testing</u></h2>
+	<form id="formFSTesting" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>Sky</th>
+					<th>Air Temp</th>
+					<th>Humidity</th>
+					<th>Wind</th>
+					<th>Water</th>
+					<th>Forecast</th>
+					<th>Enjoy Sport</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<select name="sky">
+							<option value="rainy">Rainy</option>
+							<option value="sunny">Sunny</option>
+						</select>
+					</td>
+					<td>
+						<select name="airTemp">
+							<option value="cold">Cold</option>
+							<option value="warm">Warm</option>
+						</select>
+					</td>
+					<td>
+						<select name="humidity">
+							<option value="high">High</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						<select name="wind">
+							<option value="strong">Strong</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						<select name="water">
+							<option value="warm">Warm</option>
+							<option value="cool">Cool</option>
+						</select>
+					</td>
+					<td>
+						<select name="weather">
+							<option value="same">Same</option>
+							<option value="change">Change</option>
+						</select>
+					</td>
+					<td id="hasilTraining">
+						?
+					</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="7"><button type="submit">Cari Hasil</button></td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+	<script src="jquery-3.2.1.min.js"></script>
+	<script>
+
+		var dataCount = 1;
+		$('#add-btn').click(function(event) {
+			$('#tbodyTraining').append(
+				'<tr>'+
+					'<td>'+
+						(dataCount+1)+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="sky">'+
+							'<option value="rainy">Rainy</option>'+
+							'<option value="sunny">Sunny</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="airTemp">'+
+							'<option value="cold">Cold</option>'+
+							'<option value="warm">Warm</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="humidity">'+
+							'<option value="high">High</option>'+
+							'<option value="normal">Normal</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="wind">'+
+							'<option value="strong">Strong</option>'+
+							'<option value="normal">Normal</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="water">'+
+							'<option value="warm">Warm</option>'+
+							'<option value="cool">Cool</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="weather">'+
+							'<option value="same">Same</option>'+
+							'<option value="change">Change</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="enjoySport">'+
+							'<option value="yes">Yes</option>'+
+							'<option value="no">No</option>'+
+						'</select>'+
+					'</td>'+
+				'</tr>'
+			);
+			dataCount++;
+		});
+
+
+		$('#formFSTraining').submit(function(event) {
+			event.preventDefault();
+
+			var formData = new Object();
+			var count = -1;
+			var attrCount = 0;
+			$.each($('#formFSTraining select[name=data]'), function(index, val) {
+				if($(val).data('count') != count) {
+					attrCount = 0;
+					count = $(val).data('count');
+					data = new Object();
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					data[attrCount] = dataValue;
+				}
+				else {
+					attrCount++;
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					data[attrCount] = dataValue;
+				}
+
+				formData[$(val).data('count')] = data;
+
+			});
+
+			$('#tbodyHipoPos').html('');
+			$('#tbodyHipoNeg').html('');
+			$('#tbodyHipoFinal').html('');
+
+			hipotesis(formData);
+		});
+
+		var hipoPos = new Object();
+		var hipoNeg = new Object();
+		var countPos = 0;
+		var countNeg = 0;
+
+		function hipotesis(data) {
+			$.each(data, function(indexVal, dataVal) {
+				var solutionIndex = Object.keys(dataVal).length-1;
+				var solution = Object.values(dataVal[solutionIndex])[0];
+
+				if(solution == 'yes') countPos++
+				else countNeg++;
+
+				showData = '';
+				$.each(dataVal, function(index, val) {
+					if(index != solutionIndex) {
+						var value = Object.values(val)[0];
+
+						if(solution == 'yes') {
+							if(hipoPos[index] == null) {
+								hipoPos[index] = value;
+							}
+							else {
+								if(hipoPos[index] != value) {
+									hipoPos[index] = '?';
+								}
+							}
+						}
+						else {
+							if(hipoNeg[index] == null) {
+								hipoNeg[index] = value;
+							}
+							else {
+								if(hipoNeg[index] != value) {
+									hipoNeg[index] = '?';
+								}
+							}
+
+						}
+
+						showData += '<td>'+value+'</td>';
+					}
+				});
+
+				if(countPos > 0 && solution == 'yes') {
+					var showPos = '';
+					$.each(hipoPos, function(index, val) {
+						 showPos += '<td>'+val+'</td>';
+					});
+					$('#tbodyHipoPos').append('<tr><td>Data-'+(parseInt(indexVal)+1)+'</td>'+showData+'</tr>');
+					$('#tbodyHipoPos').append('<tr><td>S'+countPos+'</td>'+showPos+'</tr>');
+					$('#tbodyHipoPos').append('<tr><td colspan="7">&nbsp;</td></tr>');
+				}
+
+				if(countNeg > 0 && solution == 'no') {
+					var showNeg = '';
+					$.each(hipoNeg, function(index, val) {
+						 showNeg += '<td>'+val+'</td>';
+					});
+					$('#tbodyHipoNeg').append('<tr><td>Data-'+(parseInt(indexVal)+1)+'</td>'+showData+'</tr>');
+					$('#tbodyHipoNeg').append('<tr><td>S'+countNeg+'</td>'+showNeg+'</tr>');
+					$('#tbodyHipoNeg').append('<tr><td colspan="7">&nbsp;</td></tr>');
+				}
+			});
+
+
+			var showPos = '';
+			var showNeg = '';
+			$.each(hipoPos, function(index, val) {
+				 showPos += '<td>'+val+'</td>';
+			});
+
+			$.each(hipoNeg, function(index, val) {
+				 showNeg += '<td>'+val+'</td>';
+			});
+
+
+			$('#tbodyHipoFinal').append('<tr>'+showPos+'<td>Yes</td></tr>');
+			$('#tbodyHipoFinal').append('<tr>'+showNeg+'<td>No</td></tr>');
+		}
+
+		var positif;
+		var negatif;
+		$('#formFSTesting').submit(function(event) {
+			event.preventDefault();
+			// var data = $(this).serializeArray().reduce(function(obj, item) {
+			//     obj[item.name] = item.value;
+			//     return obj;
+			// }, {});
+			
+			var data = $(this).serializeArray();
+
+			positif = false;
+			negatif = false;
+
+			cariPositif(data);
+			cariNegatif(data);
+
+			if(positif && !negatif) {
+				$('#hasilTraining').html('Yes');
+			}
+			else if(!positif && negatif) {
+				$('#hasilTraining').html('No');
+			}
+			else {
+				$('#hasilTraining').html('Unknown');
+			}
+		});
+
+		function cariPositif(data) {
+			var jmlHipo = 0;
+			var jmlHipoBenar = 0;
+			$.each(data, function(index, val) {
+				if(hipoPos[index] != '?') {
+					jmlHipo++;
+					if(hipoPos[index] == val.value) {
+						jmlHipoBenar++;
+					}
+				}
+			});
+
+			if(jmlHipo == jmlHipoBenar) {
+				positif = true;
+			}
+			else {
+				positif = false;
+			}
+		}
+
+		function cariNegatif(data) {
+			var jmlHipo = 0;
+			var jmlHipoBenar = 0;
+			$.each(data, function(index, val) {
+				if(hipoNeg[index] != '?') {
+					jmlHipo++;
+					if(hipoNeg[index] == val.value) {
+						jmlHipoBenar++;
+					}
+				}
+			});
+
+			if(jmlHipo == jmlHipoBenar) {
+				negatif = true;
+			}
+			else {
+				negatif = false;
+			}
+		}
+	</script>
+</body>
+</html>

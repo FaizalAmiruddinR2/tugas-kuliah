@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>2110151053 Faizal A | Machine Learning Metode Bayes</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			text-align: center;
+		}
+		th, td {
+			border: 1px solid black;
+			padding: 2.5px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Machine Learning Metode Bayes</h1>
+	<h2><u>Data Training</u></h2>
+	<form id="formFSTraining" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Outlook</th>
+					<th>Temperature</th>
+					<th>Humidity</th>
+					<th>Wind</th>
+					<th>Enjoy Sport</th>
+				</tr>
+			</thead>
+			<tbody id="tbodyTraining">
+				<tr>
+					<td>
+						1
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="sky">
+							<option value="rainy">Rainy</option>
+							<option value="sunny">Sunny</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="airTemp">
+							<option value="cold">Cold</option>
+							<option value="warm">Warm</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="humidity">
+							<option value="high">High</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="wind">
+							<option value="strong">Strong</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						<select name="data" data-count="0" data-name="enjoySport">
+							<option value="yes">Yes</option>
+							<option value="no">No</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td><button type="button" id="add-btn">+1 row</button></td>
+					<td colspan="5">&nbsp;</td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+
+	<h2><u>Data Testing</u></h2>
+	<form id="formFSTesting" method="post">
+		<table>
+			<thead>
+				<tr>
+					<th>Sky</th>
+					<th>Temperature</th>
+					<th>Humidity</th>
+					<th>Wind</th>
+					<th></th>
+					<th>Enjoy Sport</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<select name="sky">
+							<option value="" selected></option>
+							<option value="rainy">Rainy</option>
+							<option value="sunny">Sunny</option>
+						</select>
+					</td>
+					<td>
+						<select name="airTemp">
+							<option value="" selected></option>
+							<option value="cold">Cold</option>
+							<option value="warm">Warm</option>
+						</select>
+					</td>
+					<td>
+						<select name="humidity">
+							<option value="" selected></option>
+							<option value="high">High</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						<select name="wind">
+							<option value="" selected></option>
+							<option value="strong">Strong</option>
+							<option value="normal">Normal</option>
+						</select>
+					</td>
+					<td>
+						&nbsp;
+					</td>
+					<td>
+						&nbsp;
+					</td>
+					<td>
+						&nbsp;
+					</td>
+				</tr>
+				<tr>
+					<td id='0-yes'></td>
+					<td id='1-yes'></td>
+					<td id='2-yes'></td>
+					<td id='3-yes'></td>
+					<td id='yes'></td>
+					<td id='hasilYes'></td>
+					<td>Yes</td>
+				</tr>
+				<tr>
+					<td id='0-no'></td>
+					<td id='1-no'></td>
+					<td id='2-no'></td>
+					<td id='3-no'></td>
+					<td id='no'></td>
+					<td id='hasilNo'></td>
+					<td>No</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="7"><button type="submit">Cari Hasil</button></td>
+				</tr>
+			</tfoot>
+		</table>
+	</form>
+	<script src="jquery-3.2.1.min.js"></script>
+	<script>
+
+		var dataCount = 1;
+		$('#add-btn').click(function(event) {
+			$('#tbodyTraining').append(
+				'<tr>'+
+					'<td>'+
+						(dataCount+1)+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="sky">'+
+							'<option value="rainy">Rainy</option>'+
+							'<option value="sunny">Sunny</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="airTemp">'+
+							'<option value="cold">Cold</option>'+
+							'<option value="warm">Warm</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="humidity">'+
+							'<option value="high">High</option>'+
+							'<option value="normal">Normal</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="wind">'+
+							'<option value="strong">Strong</option>'+
+							'<option value="normal">Normal</option>'+
+						'</select>'+
+					'</td>'+
+					'<td>'+
+						'<select name="data" data-count="'+dataCount+'" data-name="enjoySport">'+
+							'<option value="yes">Yes</option>'+
+							'<option value="no">No</option>'+
+						'</select>'+
+					'</td>'+
+				'</tr>'
+			);
+			dataCount++;
+		});
+
+		$('#formFSTesting').submit(function(event) {
+			event.preventDefault();
+			// var data = $(this).serializeArray().reduce(function(obj, item) {
+			//     obj[item.name] = item.value;
+			//     return obj;
+			// }, {});
+			
+			var formData = [];
+			var count = -1;
+			var attrCount = 0;
+			$.each($('#formFSTraining select[name=data]'), function(index, val) {
+				if($(val).data('count') != count) {
+					attrCount = 0;
+					count = $(val).data('count');
+					data = new Object();
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					data[attrCount] = dataValue;
+				}
+				else {
+					attrCount++;
+					dataValue = new Object();
+					dataValue[$(val).data('name')] = $(val).val();
+					data[attrCount] = dataValue;
+				}
+
+				formData[$(val).data('count')] = data;
+
+			});
+			
+			var data = $(this).serializeArray();
+			cariHasil(data, formData);
+		});
+
+		function cariHasil(data, formData) {
+			var n = formData.length;
+			var countYes = [];
+			var countNo = [];
+
+			var yes = 0;
+			var no = 0;
+
+			var hasilYes = 1;
+			var hasilNo = 1;
+
+			$.each(formData, function(indexVal, dataVal) {
+				var solutionIndex = Object.keys(dataVal).length-1;
+				var solution = Object.values(dataVal[solutionIndex])[0];
+
+				if(solution == 'yes') {
+					yes++;
+				}
+				else {
+					no++;
+				}
+
+				$.each(dataVal, function(index, val) {
+					$('[id="'+index+'-yes"]').html('');
+					$('[id="'+index+'-no"]').html('');
+					if(index != solutionIndex) {
+						if(data[index].value != '') {
+							if(typeof countYes[index] == 'undefined') {
+								countYes[index] = 0;
+							}
+							if(typeof countNo[index] == 'undefined') {
+								countNo[index] = 0;
+							}
+
+							if(Object.values(dataVal[index])[0] == data[index].value && solution == 'yes') {
+								countYes[index] += 1;
+							}
+							else if(Object.values(dataVal[index])[0] == data[index].value && solution == 'no') {
+								countNo[index] += 1;
+							}
+						}
+					}
+				});
+			});
+
+			$.each(countYes, function(index, val) {
+				if(typeof val != 'undefined') {
+					hasilYes *= (val / yes);
+					$('[id="'+index+'-yes"]').html(val+'/'+yes);
+				}
+			});
+			hasilYes *= (yes / n);
+			$.each(countNo, function(index, val) {
+				if(typeof val != 'undefined') {
+					hasilNo *= (val / no);
+					$('[id="'+index+'-no"]').html(val+'/'+no);
+				}
+			});
+			hasilNo *= (no / n);
+
+			$('#yes').html(yes +'/'+ n);
+			$('#no').html(no +'/'+ n);
+
+			$('#hasilYes').html(hasilYes);
+			$('#hasilNo').html(hasilNo);
+		}
+	</script>
+</body>
+</html>
